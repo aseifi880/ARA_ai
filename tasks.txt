@@ -1,0 +1,3 @@
+( Tasks )
+1 - Analyze and gather classes and attributes for scraping
+2 - Configure base scraper classes and methods
