@@ -1,3 +1,5 @@
 ( Tasks )
 1 - Analyze and gather classes and attributes for scraping
 2 - Configure base scraper classes and methods
+3 - Create and fix methods and functions for extracting resume links from main page
+4 - Create and debug methods and functions for getting the resume content and scraping it for data
