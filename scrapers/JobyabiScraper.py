@@ -22,7 +22,7 @@ def scrape_resume_contents(soup: BeautifulSoup) -> dict[str, dict]:
     applicant_name = resume_applicant_pi.text
     applicant_birthdate_marriage = resume_applicant_pi.find("span").text
     resume_right_side = soup.find("div", {"class": "cvv_right"})
-    applicant_location = soup.find("div", {"class": "cvv_location"})
+    applicant_location = soup.find("div", {"class": "cvv_location"}).text
     resume_left_side = soup.find("div", {"class": "cvv_left"})
     applicant_aboutme = resume_left_side.find("div", {"class": "cvv_aboutme"})
 

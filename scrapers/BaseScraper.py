@@ -10,7 +10,6 @@ class BaseScraper(ABC):
     Construction takes site_url as only input.
     Based on site fetch and parse methods can be overwritten.
     """
-    from bs4 import BeautifulSoup
 
     headers = {
         "User-Agent": "Mozilla/5.0"
