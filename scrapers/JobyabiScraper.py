@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from scrapers import BaseScraper
 from helpers.cleaners import remove_extra_space
 
+
 class JobyabiScraper(BaseScraper, ABC):
     base_url = "https://www.jobyabi.com"
 

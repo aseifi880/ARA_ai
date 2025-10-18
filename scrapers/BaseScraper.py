@@ -1,6 +1,5 @@
 from abc import ABC
-
-import requests
+import httpx
 from bs4 import BeautifulSoup
 
 
@@ -29,7 +28,7 @@ class BaseScraper(ABC):
         """
         req_url = f"{self.base_url}{endpoint}"
         self.request_url = f"{self.base_url}{endpoint}"
-        res = requests.get(req_url, headers=self.headers)
+        res = httpx.get(req_url, headers=self.headers)
         res.raise_for_status()
         return res.text
 
@@ -40,4 +39,4 @@ class BaseScraper(ABC):
         :param html: str
         :return: BeautifulSoup
         """
-        return BeautifulSoup(html, "html.parser")
+        return BeautifulSoup(html, "lxml")
