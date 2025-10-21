@@ -6,6 +6,10 @@ def remove_extra_space(text: str) -> str:
     return regex.sub('', text)
 
 
+def multiline_to_one(text: str) -> str:
+    regex = re.compile(r'[\r\n]+')
+    return regex.sub('', text)
+
 # def main():
 
 
