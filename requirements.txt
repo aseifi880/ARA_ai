@@ -8,3 +8,5 @@ typing_extensions==4.15.0
 urllib3==2.5.0
 Django~=5.2.7
 httpx~=0.28.0
+djangorestframework~=3.16.1
+pymongo~=4.15.3
