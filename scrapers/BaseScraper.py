@@ -10,9 +10,7 @@ class BaseScraper(ABC):
     Based on site fetch and parse methods can be overwritten.
     """
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    headers = {"User-Agent": "Mozilla/5.0"}
 
     base_url: str = ""
     request_url: str = ""

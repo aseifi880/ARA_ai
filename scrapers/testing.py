@@ -34,13 +34,17 @@ from html_text import text
 #         pprint(jrs.scrape_resume_contents(resume_soup))
 
 
-# use to test jobyabi job scraping
+# use to test jobyabi link scraping
 def main():
     jjs = JobyabiJobScraper()
-    recent_jobs_html = jjs.fetch(jjs.recent_job_postings_endpoint)
-    soup = jjs.get_soup(recent_jobs_html)
-    links = jjs.scrape_recent_jobs_links(soup)
+    today_jobs = jjs.fetch(jjs.today_job_posting_endpoint)
+    soup = jjs.get_soup(today_jobs)
+    links = jjs.scrape_job_links_for_today(soup)
     print(links)
+    for link in links:
+        html = jjs.fetch(link)
+        soup = jjs.get_soup(html)
+        pprint(jjs.scrape_job_content_from_job_page(soup))
 
 
 if __name__ == "__main__":

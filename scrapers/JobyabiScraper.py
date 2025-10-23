@@ -9,7 +9,11 @@ from bs4 import BeautifulSoup
 
 # local-application libraries
 from scrapers import BaseScraper
-from helpers.cleaners import remove_extra_space, multiline_to_one
+from helpers.cleaners import (
+    remove_extra_space,
+    multiline_to_one,
+    get_url_path_with_params,
+)
 
 
 class JobyabiScraper(BaseScraper, ABC):
@@ -50,28 +54,53 @@ class JobyabiResumeScraper(JobyabiScraper):
         """
         resume = {}
         el_name = soup.find("div", {"class": "cv_name_s"})
-        applicant_name = el_name.find(text=True, recursive=False).get_text(strip=True) if el_name else ""
-        applicant_birthdate_marriage = remove_extra_space(el_name.find("span").get_text(strip=True)) if el_name else ""
+        applicant_name = (
+            el_name.find(text=True, recursive=False).get_text(strip=True)
+            if el_name
+            else ""
+        )
+        applicant_birthdate_marriage = (
+            remove_extra_space(el_name.find("span").get_text(strip=True))
+            if el_name
+            else ""
+        )
         resume_right_side = soup.find("div", {"class": "cvv_right"})
         el_location = soup.find("span", {"class": "cvv_location"})
         applicant_location = el_location.get_text(strip=True) if el_location else ""
         resume_left_side = soup.find("div", {"class": "cvv_left"})
-        applicant_aboutme = multiline_to_one(remove_extra_space(resume_left_side.find("div", {"class": "cvv_aboutme"})
-                                                                .get_text(strip=True))) if resume_left_side else ""
+        applicant_aboutme = (
+            multiline_to_one(
+                remove_extra_space(
+                    resume_left_side.find("div", {"class": "cvv_aboutme"}).get_text(
+                        strip=True
+                    )
+                )
+            )
+            if resume_left_side
+            else ""
+        )
 
         work_experience = []
-        find_work_icon = resume_left_side.find("span", {"class": "cvv_pre_work"}) if resume_left_side else ""
+        find_work_icon = (
+            resume_left_side.find("span", {"class": "cvv_pre_work"})
+            if resume_left_side
+            else ""
+        )
         work_icon_parent = find_work_icon.find_parent("div") if find_work_icon else None
-        work_exp_table = work_icon_parent.find_next("table") if work_icon_parent else None
+        work_exp_table = (
+            work_icon_parent.find_next("table") if work_icon_parent else None
+        )
         if work_exp_table is not None:
             for row in work_exp_table.find_all("tr")[1:]:
                 col_data = [td.get_text(strip=True) for td in row.find_all("td")]
                 if len(col_data) == 3:
-                    work_experience.append({
-                        "position": col_data[0],
-                        "work place": col_data[1],
-                        "curr_status": col_data[2],
-                    })
+                    work_experience.append(
+                        {
+                            "position": col_data[0],
+                            "work place": col_data[1],
+                            "curr_status": col_data[2],
+                        }
+                    )
 
         edu_history = []
         find_edu_icon = resume_left_side.find("span", {"class": "cvv_edu_ico"})
@@ -81,10 +110,12 @@ class JobyabiResumeScraper(JobyabiScraper):
             for row in education_history_table.find_all("tr")[1:]:
                 col_data = [td.getText(strip=True) for td in row.find_all("td")]
                 if len(col_data) == 2:
-                    edu_history.append({
-                        "grade_and_major": col_data[0],
-                        "location": col_data[1],
-                    })
+                    edu_history.append(
+                        {
+                            "grade_and_major": col_data[0],
+                            "location": col_data[1],
+                        }
+                    )
 
         software_abilities = []
         find_sw_icon = resume_left_side.find("span", {"class": "cvv_software_ico"})
@@ -94,10 +125,12 @@ class JobyabiResumeScraper(JobyabiScraper):
             for row in software_table.find_all("tr")[1:]:
                 col_data = [td.get_text(strip=True) for td in row.find_all("td")]
                 if len(col_data) == 2:
-                    software_abilities.append({
-                        "software": col_data[0],
-                        "familiarity": col_data[1],
-                    })
+                    software_abilities.append(
+                        {
+                            "software": col_data[0],
+                            "familiarity": col_data[1],
+                        }
+                    )
 
         languages = []
         find_lang_icon = resume_left_side.find("span", {"class": "cvv_langs_ico"})
@@ -107,10 +140,9 @@ class JobyabiResumeScraper(JobyabiScraper):
             for row in languages_table.find_all("tr")[1:]:
                 col_data = [td.get_text(strip=True) for td in row.find_all("td")]
                 if len(col_data) == 2:
-                    languages.append({
-                        "language": col_data[0],
-                        "familiarity": col_data[1]
-                    })
+                    languages.append(
+                        {"language": col_data[0], "familiarity": col_data[1]}
+                    )
 
         resume["full_name"] = applicant_name
         resume["birthdate_marriage_status"] = applicant_birthdate_marriage
@@ -132,7 +164,10 @@ class JobyabiJobScraper(JobyabiScraper):
 
     @staticmethod
     def scrape_job_links_for_today(soup: BeautifulSoup, limit: int = None) -> list[str]:
-        pass
+        job_postings = soup.find_all("div", {"class": "n_cell"})
+        anchor_els = [job_posting.find("a") for job_posting in job_postings]
+        links = [get_url_path_with_params(link.get("href")) for link in anchor_els]
+        return links
 
     @staticmethod
     def scrape_recent_jobs_links(soup: BeautifulSoup, limit: int = 10) -> list[str]:
@@ -147,4 +182,19 @@ class JobyabiJobScraper(JobyabiScraper):
         job_links = [a.get("href") for a in job_anchor_els]
         return job_links
 
+    @staticmethod
+    def scrape_job_content_from_job_page(soup: BeautifulSoup) -> dict[str, str]:
+        """
+        Get soup for the job description page and return a dict of key values concerning the job details
+        :param soup: BeautifulSoup object
+        :return: returns a dict
+        """
+        content = {}
+        page_title = soup.find("h2", {"class": "n_page_title"}).get_text()
+        content["page_title"] = page_title
 
+        job_titles_h3 = soup.find_all("h3")[:-3]
+        job_titles = [job_title.get_text(strip=True) for job_title in job_titles_h3]
+        content["job_titles"] = job_titles
+
+        return content
