@@ -7,6 +7,9 @@ from pymongo.collection import Collection
 
 class JobyabiRepo:
     def __init__(self, mongo_url: str):
+        """
+        jobyabi repo class requires the url of a mongodb for initialization
+        """
         self.client = MongoClient(mongo_url)
         self.db = self.client['scraped_db']
         self.jobs: Collection = self.db['jobs']
@@ -56,8 +59,8 @@ class JobyabiRepo:
         if not doc or "fetched_at" not in doc:
             return True
         fetched_at = doc["fetched_at"]
-        age = (datetime.now(timezone.utc) - fetched_at).total_seconds()
-        return age > max_age_seconds
+        age = (datetime.now() - fetched_at)
+        return age.total_seconds() > max_age_seconds
 
     def close(self):
         self.client.close()

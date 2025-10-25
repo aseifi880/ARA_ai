@@ -14,11 +14,11 @@ class JobyabiService:
         self.job_scraper = JobyabiJobScraper()
         self.resume_scraper = JobyabiResumeScraper()
 
-    # ---------------- Jobs ----------------
+    # methods for jobs
 
     # TODO add methods for job service
 
-    # ---------------- Resumes ----------------
+    # methods for resumes
     def get_cached_resumes(self, limit: int = 50) -> List[Dict]:
         return self.repo.get_recent_resumes(limit=limit)
 
