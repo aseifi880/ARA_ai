@@ -1,3 +1,5 @@
+from typing import Any
+
 from bs4 import BeautifulSoup
 
 from helpers.cleaners import get_url_path_with_params
@@ -9,8 +11,10 @@ class JobyabiJobScraper(JobyabiScraper):
     # use below links as class instance attributes to use inside fetch method
     # jjs.recent_job_posting_endpoint
     recent_job_postings_endpoint = "/"
-    today_job_posting_endpoint = "/topics/استخدام-های-امروز"
 
+    @property
+    def today_job_posting_endpoint(self):
+        return "/topics/استخدام-های-امروز"
     @staticmethod
     def scrape_job_links_for_today(soup: BeautifulSoup, limit: int = None) -> list[str]:
         job_postings = soup.find_all("div", {"class": "n_cell"})
@@ -32,7 +36,7 @@ class JobyabiJobScraper(JobyabiScraper):
         return job_links
 
     @staticmethod
-    def scrape_job_content_from_job_page(soup: BeautifulSoup) -> dict[str, str]:
+    def scrape_job_content_from_job_page(soup: BeautifulSoup) -> dict[str, Any]:
         """
         Get soup for the job description page and return a dict of key values concerning the job details
         :param soup: BeautifulSoup object
@@ -46,4 +50,15 @@ class JobyabiJobScraper(JobyabiScraper):
         job_titles = [job_title.get_text(strip=True) for job_title in job_titles_h3]
         content["job_titles"] = job_titles
 
+        job_info_paragraphs = soup.find("div", {"class": "n_cell"}).find_all("p")
+        content["job_info"] = [p.get_text(strip=True) for p in job_info_paragraphs]
+
+        content["job_location"] = (soup.find("span", {"class": "post_pos_sim"})
+                                   .find_next_sibling("a")
+                                   .get_text(strip=True))
+
+        content["salary"] = soup.find("span", {"class": "post_sal_sim"}).parent.get_text(strip=True)
+
+        content["required_education"] = (soup.find("span", {"class": "post_edu_sim"})
+                                         .parent.get_text(strip=True))
         return content
