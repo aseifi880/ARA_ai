@@ -4,3 +4,4 @@
 3 - Create and fix methods and functions for extracting resume links from main page
 4 - Create and debug methods and functions for getting the resume content and scraping it for data
 5 - Create class for scraping jobs from jobyabi site
+6 - Add .env.example with default configurations
